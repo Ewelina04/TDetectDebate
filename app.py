@@ -167,8 +167,7 @@ with tab_topic_vis:
     st.plotly_chart( fig )
     add_spacelines(2)
 
-with tab_topic_speakers:    
-    c
+with tab_topic_speakers:        
     topics_per_class = topic_model.topics_per_class(docs, classes=classes)    
     fig = topic_model.visualize_topics_per_class(topics_per_class, width = 750, height = 600 )
     st.plotly_chart( fig )
