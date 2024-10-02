@@ -196,7 +196,7 @@ with tab_topic_speakers:
     st.plotly_chart( fig )
     add_spacelines(2)
 
-    speaker_categories = list(df_2.speaker_category.unique())  
+    speaker_categories = list(data2.speaker_category.unique())  
     chosen_categories_in_time = st.multiselect( "Choose speaker categories to display", speaker_categories, speaker_categories )
     df_2 = SpkrInTime(data2, chosen_categories_in_time)
 
