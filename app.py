@@ -146,25 +146,29 @@ tab_df, tab_topic_vis, tab_topic_sum, tab_topic_speakers = st.tabs( ['Dataframe'
 
     
 with tab_df:
-    data2 = topic_model.get_document_info(docs)
-    data2 = data2.rename(columns = {'Document':'sentence'})
-    data2 = data2.merge(data2, on = 'sentence')
+    data3 = topic_model.get_document_info(docs)
+    data3 = data3.rename(columns = {'Document':'sentence'})
+    data2 = data3.merge(data2, on = 'sentence')
     data2 = data2.drop_duplicates('sentence')
     data2 = data2.rename(columns = {'index':'full_text_id'})
     st.write(data2)
 
 with tab_topic_vis:
-    st.plotly_chart( topic_model.visualize_topics( width = 650, height = 400 ) )
+    fig = topic_model.visualize_topics( width = 650, height = 400 ) 
+    st.plotly_chart( fig )
     add_spacelines(2)
-    st.plotly_chart( topic_model.visualize_documents(docs, width = 850, height = 700 ) )
+    fig = topic_model.visualize_documents(docs, width = 850, height = 700 )
+    st.plotly_chart( fig )
     add_spacelines(2)
-    st.plotly_chart( topic_model.visualize_barchart(n_words = 8, width = 650, height = 400 ) )
+    fig = topic_model.visualize_barchart(n_words = 8, width = 650, height = 400 )
+    st.plotly_chart( fig )
     add_spacelines(2)
 
 with tab_topic_speakers:    
     classes = data2[ 'speaker' ].tolist()
     topics_per_class = topic_model.topics_per_class(docs, classes=classes)    
-    st.plotly_chart( topic_model.visualize_topics_per_class(topics_per_class, width = 750, height = 600 ) )
+    fig = topic_model.visualize_topics_per_class(topics_per_class, width = 750, height = 600 )
+    st.plotly_chart( fig )
     add_spacelines(2)
 
     df_2 = data2.copy().drop_duplicates('full_text_id')
