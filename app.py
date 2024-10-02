@@ -91,10 +91,10 @@ def read_file(file):
 
 
 @st.cache_resource
-def DetectT(docs, model, classes):
-    topics, probs = model.fit_transform(docs)
-    topics_per_class = model.topics_per_class(docs, classes=classes)  
-    return topics, probs, topics_per_class, model
+def DetectT(docs, _model, classes):
+    topics, probs = _model.fit_transform(docs)
+    topics_per_class = _model.topics_per_class(docs, classes=classes)  
+    return topics, probs, topics_per_class, _model
     
 
 @st.cache_data
