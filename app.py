@@ -68,15 +68,15 @@ def split_into_para(text):
 
   else:
     n0 = 0
-    n1 = 6
+    n1 = 3
 
-    for _ in range( int( np.ceil(nn/6)) ):
+    for _ in range( int( np.ceil(nn/3)) ):
       #print( exmpl[n0:n1] )
       para_split = exmpl[n0:n1]
       para_split = ". ".join(para_split)
       splited.append( para_split )
-      n0+=6
-      n1+=6
+      n0+=3
+      n1+=3
 
   return splited
 
@@ -90,6 +90,12 @@ def read_file(file):
         return df
 
 
+@st.cache_resource
+def DetectT(docs, model, classes):
+    topics, probs = model.fit_transform(docs)
+    topics_per_class = model.topics_per_class(docs, classes=classes)  
+    return topics, probs, topics_per_class, model
+    
 
 @st.cache_data
 def SpkrInTime(data, chosen_categories):
@@ -157,8 +163,9 @@ topic_model = BERTopic(representation_model=representation_model, min_topic_size
 
 docs = data2['sentence']
 classes = data2[ 'speaker' ].tolist()
-topics, probs = topic_model.fit_transform(docs)
-topics_per_class = topic_model.topics_per_class(docs, classes=classes)  
+#topics, probs = topic_model.fit_transform(docs)
+#topics_per_class = topic_model.topics_per_class(docs, classes=classes)  
+topics, probs, topics_per_class, topic_model = DetectT(docs = docs, model = topic_model, classes = classes)
 #topics, probs, topics_per_class = DetectT(docs = docs, model = topic_model, classes = classes)
 freq = topic_model.get_topic_info()
 
