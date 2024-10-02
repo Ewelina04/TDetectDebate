@@ -136,7 +136,7 @@ with st.sidebar:
 
         zeroshot_min_sim = st.slider("The minimum similarity between a zero-shot topic and a document for assignment", 0.0, 1.0, 0.4)
     else:
-        zeroshot_topic_list = None
+        zero_shot_check_list = None
         zeroshot_min_sim = 0.7
         
     
@@ -176,7 +176,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 vectorizer_model = CountVectorizer(ngram_range=(1, 1), stop_words="english", max_df = max_doc_freq, min_df = min_doc_freq)
 representation_model = KeyBERTInspired()
 topic_model = BERTopic(representation_model=representation_model, min_topic_size = min_tsize, 
-                       vectorizer_model=vectorizer_model, zeroshot_topic_list = zeroshot_topic_list, zeroshot_min_similarity = zeroshot_min_sim)
+                       vectorizer_model=vectorizer_model, zeroshot_topic_list = zero_shot_check_list, zeroshot_min_similarity = zeroshot_min_sim)
 
 docs = data2['sentence']
 classes = data2[ 'speaker' ].tolist()
