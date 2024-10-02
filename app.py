@@ -25,9 +25,8 @@ import re
 
 from io import StringIO
 
-
-#from bertopic import BERTopic
-#from bertopic.representation import KeyBERTInspired
+from bertopic import BERTopic
+from bertopic.representation import KeyBERTInspired
 
 
 def add_spacelines(number_sp=2):
@@ -133,7 +132,9 @@ data2 = data.copy()
 data2 = data2.explode('sentence')
 data2 = data2.reset_index()
 
-st.write(data2)
+tab_df, tab_topic_vis = st.tabs( 'Dataframe', 'Topics Visualisation' )
+with tab_df:
+    st.write(data2)
 
 
 # Fine-tune your topic representations
@@ -144,5 +145,6 @@ docs = data2['sentence']
 topics, probs = topic_model.fit_transform(docs)
 freq = topic_model.get_topic_info()
 
-st.write(freq)
+with tab_topic_vis:
+    st.write(freq)
 # https://maartengr.github.io/BERTopic/getting_started/visualization/visualization.html#visualize-topics-over-time
