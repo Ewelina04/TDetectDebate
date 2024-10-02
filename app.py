@@ -90,13 +90,6 @@ def read_file(file):
         return df
 
 
-@st.experimental_memo
-def DetectT(docs, model, classes):
-    topic_model = model
-    topics, probs = topic_model.fit_transform(docs)
-    topics_per_class = topic_model.topics_per_class(docs, classes=classes)  
-    return topics, probs, topics_per_class
-
 
 @st.cache_data
 def SpkrInTime(data, chosen_categories):
@@ -162,8 +155,9 @@ topic_model = BERTopic(representation_model=representation_model, min_topic_size
 
 docs = data2['sentence']
 classes = data2[ 'speaker' ].tolist()
-#topics, probs = topic_model.fit_transform(docs)
-topics, probs, topics_per_class = DetectT(docs = docs, model = topic_model, classes = classes)
+topics, probs = topic_model.fit_transform(docs)
+topics_per_class = topic_model.topics_per_class(docs, classes=classes)  
+#topics, probs, topics_per_class = DetectT(docs = docs, model = topic_model, classes = classes)
 freq = topic_model.get_topic_info()
 
 
