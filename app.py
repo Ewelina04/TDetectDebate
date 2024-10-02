@@ -90,7 +90,7 @@ def read_file(file):
         return df
 
 
-@st.cache_data
+@st.experimental_memo
 def DetectT(docs, model, classes):
     topic_model = model
     topics, probs = topic_model.fit_transform(docs)
