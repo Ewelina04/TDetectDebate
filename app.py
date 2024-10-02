@@ -113,19 +113,35 @@ def SpkrInTime(data, chosen_categories):
 #  *********************** sidebar  *********************
 with st.sidebar:
     #standard
-    st.write("### Parameters")
+    st.title("Navigator")
     add_spacelines(2)
-    st.write('Upload your debate in a **.txt** format')
+    #st.write('Upload your debate in a **.txt** format')
+    st.write( '**Data**' )  
     uploaded_file = st.file_uploader('', type = 'txt', accept_multiple_files = False, label_visibility = 'collapsed')
     if uploaded_file is not None:
         st.success('File uploaded correctly!')
     else:
         st.stop()
+        
+    add_spacelines(2)
+    #st.write('Upload your debate in a **.txt** format')
+    st.write( '**Parameters of topic detector**' ) 
+    max_doc_freq = st.slider("Max doc frequency", 0.0, 1.0, 0.7)
+    min_doc_freq = st.slider("Min doc frequency", 0, 30, 3)
+    min_tsize = st.slider("Min topic size", 0, 50, 11)
+    zero_shot_check = st.checkbox('Zero-shot topic detection')
+    if zero_shot_check:
+        zero_shot_check_list = st.text_area("Insert topic names, separated by a comma", value = 'war, abortion, imigration, taxes')
+        zero_shot_check_list = zero_shot_check_list.split(", ")
 
+        zeroshot_min_sim = st.slider("The minimum similarity between a zero-shot topic and a document for assignment", 0.0, 1.0, 0.4)
+    else:
+        zeroshot_topic_list = None
+        zeroshot_min_sim = 0.7
+        
+    
 
 st.title('Topic detection in structured debates')
-
-
 #with open(uploaded_file.name, 'r') as file:
 #    data = uploaded_file.read()
 
@@ -157,9 +173,10 @@ data2 = data2.reset_index()
 
 # Fine-tune your topic representations
 from sklearn.feature_extraction.text import CountVectorizer
-vectorizer_model = CountVectorizer(ngram_range=(1, 1), stop_words="english", max_df = 0.7, min_df = 3)
+vectorizer_model = CountVectorizer(ngram_range=(1, 1), stop_words="english", max_df = max_doc_freq, min_df = min_doc_freq)
 representation_model = KeyBERTInspired()
-topic_model = BERTopic(representation_model=representation_model, min_topic_size = 15, vectorizer_model=vectorizer_model)
+topic_model = BERTopic(representation_model=representation_model, min_topic_size = min_tsize, 
+                       vectorizer_model=vectorizer_model, zeroshot_topic_list = zeroshot_topic_list, zeroshot_min_similarity = zeroshot_min_sim)
 
 docs = data2['sentence']
 classes = data2[ 'speaker' ].tolist()
