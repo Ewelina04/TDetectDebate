@@ -35,6 +35,8 @@ def add_spacelines(number_sp=2):
 
 
 def split_into_para(text):
+  colon_id = text.index(':') + 1
+  text = text[colon_id: ].strip()
   exmpl = text.split(". ")
   nn = len(exmpl)
 
@@ -126,7 +128,7 @@ dd1 = data.groupby('speaker')['nwords'].sum().sort_values().reset_index()
 dd1_politicians = dd1[dd1['nwords'] >= dd1['nwords'].mean()]['speaker'].tolist()
 data['speaker_category'] = np.where( data.speaker.isin(dd1_politicians), 'politician', 'moderator' )
 
-data['sentence'] = data.text.apply( lambda x: split_into_para(x[4:].strip()) )
+data['sentence'] = data.text.apply( lambda x: split_into_para(x) )
 
 data2 = data.copy()
 data2 = data2.explode('sentence')
@@ -138,11 +140,12 @@ representation_model = KeyBERTInspired()
 topic_model = BERTopic(representation_model=representation_model, min_topic_size = 15)
 
 docs = data2['sentence']
+classes = data2[ 'speaker' ].tolist()
 topics, probs = topic_model.fit_transform(docs)
 freq = topic_model.get_topic_info()
 
 
-tab_df, tab_topic_vis, tab_topic_sum, tab_topic_speakers = st.tabs( ['Dataframe', 'Topics Summary', 'Topics Visualisation', 'Speakers'] )
+tab_df, tab_topic_sum, tab_topic_vis, tab_topic_speakers = st.tabs( ['Dataframe', 'Topics Summary', 'Topics Visualisation', 'Speakers'] )
 
     
 with tab_df:
@@ -154,18 +157,18 @@ with tab_df:
     st.write(data2)
 
 with tab_topic_vis:
-    fig = topic_model.visualize_topics( width = 650, height = 400 ) 
+    fig = topic_model.visualize_topics( width = 750, height = 650 ) 
     st.plotly_chart( fig )
     add_spacelines(2)
     fig = topic_model.visualize_documents(docs, width = 850, height = 700 )
     st.plotly_chart( fig )
     add_spacelines(2)
-    fig = topic_model.visualize_barchart(n_words = 8, width = 650, height = 400 )
+    fig = topic_model.visualize_barchart(n_words = 8, width = 650, height = 600 )
     st.plotly_chart( fig )
     add_spacelines(2)
 
 with tab_topic_speakers:    
-    classes = data2[ 'speaker' ].tolist()
+    c
     topics_per_class = topic_model.topics_per_class(docs, classes=classes)    
     fig = topic_model.visualize_topics_per_class(topics_per_class, width = 750, height = 600 )
     st.plotly_chart( fig )
