@@ -150,8 +150,10 @@ data2 = data2.reset_index()
 
 
 # Fine-tune your topic representations
+from sklearn.feature_extraction.text import CountVectorizer
+vectorizer_model = CountVectorizer(ngram_range=(1, 2), stop_words="english", max_df = 0.5, min_df = 3)
 representation_model = KeyBERTInspired()
-topic_model = BERTopic(representation_model=representation_model, min_topic_size = 15)
+topic_model = BERTopic(representation_model=representation_model, min_topic_size = 15, vectorizer_model=vectorizer_model)
 
 docs = data2['sentence']
 classes = data2[ 'speaker' ].tolist()
