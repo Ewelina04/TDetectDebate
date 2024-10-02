@@ -90,6 +90,27 @@ def read_file(file):
         return df
 
 
+@st.cache_data
+def DetectT(docs, model, classes):
+    topic_model = model
+    topics, probs = topic_model.fit_transform(docs)
+    topics_per_class = topic_model.topics_per_class(docs, classes=classes)  
+    return topics, probs, topics_per_class
+
+
+@st.cache_data
+def SpkrInTime(data, chosen_categories):
+    df_2 = data.copy().drop_duplicates('full_text_id')
+    df_2 = df_2[ df_2.speaker_category.isin(chosen_categories) ]
+    df_2 = df_2.reset_index(drop=True)
+    df_2 = df_2.reset_index()    
+    df_2["turn"] = df_2['index'].astype('int')
+    df_2["velocity"] = 1
+    return df_2
+
+
+
+
 #  *********************** sidebar  *********************
 with st.sidebar:
     #standard
@@ -141,11 +162,12 @@ topic_model = BERTopic(representation_model=representation_model, min_topic_size
 
 docs = data2['sentence']
 classes = data2[ 'speaker' ].tolist()
-topics, probs = topic_model.fit_transform(docs)
+#topics, probs = topic_model.fit_transform(docs)
+topics, probs, topics_per_class = DetectT(docs = docs, model = topic_model, classes = classes)
 freq = topic_model.get_topic_info()
 
 
-tab_df, tab_topic_sum, tab_topic_vis, tab_topic_speakers = st.tabs( ['Dataframe', 'Topics Summary', 'Topics Visualisation', 'Speakers'] )
+tab_topic_sum, tab_topic_vis, tab_topic_speakers, tab_df = st.tabs( ['Topics Summary', 'Topics Visualisation', 'Speakers', 'Dataframe' ] )
 
     
 with tab_df:
@@ -155,6 +177,7 @@ with tab_df:
     data2 = data2.drop_duplicates('sentence')
     data2 = data2.rename(columns = {'index':'full_text_id'})
     st.write(data2)
+
 
 with tab_topic_vis:
     fig = topic_model.visualize_topics( width = 750, height = 650 ) 
@@ -168,19 +191,20 @@ with tab_topic_vis:
     add_spacelines(2)
 
 with tab_topic_speakers:        
-    topics_per_class = topic_model.topics_per_class(docs, classes=classes)    
-    fig = topic_model.visualize_topics_per_class(topics_per_class, width = 750, height = 600 )
+    #topics_per_class = topic_model.topics_per_class(docs, classes=classes)    
+
+    radio_value = st.radio( "Choose the unit for analysis", ['number', 'percentage'] )
+    if radio_value == 'number':
+        radio_value_bool = False
+    else:
+        radio_value_bool = True
+    fig = topic_model.visualize_topics_per_class(topics_per_class, width = 750, height = 600, normalize_frequency = radio_value_bool )    
     st.plotly_chart( fig )
     add_spacelines(2)
 
-    df_2 = data2.copy().drop_duplicates('full_text_id')
-    speaker_categories = list(df_2.speaker_category.unique())
+    speaker_categories = list(df_2.speaker_category.unique())  
     chosen_categories_in_time = st.multiselect( "Choose speaker categories to display", speaker_categories, speaker_categories )
-    df_2 = df_2[ df_2.speaker_category.isin(chosen_categories_in_time) ]
-    df_2 = df_2.reset_index(drop=True)
-    df_2 = df_2.reset_index()    
-    df_2["turn"] = df_2['index'].astype('int')
-    df_2["velocity"] = 1
+    df_2 = SpkrInTime(data2, chosen_categories_in_time)
 
     fig = px.bar(df_2, x="turn", y="velocity", hover_data = {"speaker":True, "velocity":False}, color = "speaker",
                  labels={'velocity':'', 'speaker': 'Speaker'}, title = "Speakers distribution in time",
