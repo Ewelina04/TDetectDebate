@@ -132,10 +132,6 @@ data2 = data.copy()
 data2 = data2.explode('sentence')
 data2 = data2.reset_index()
 
-tab_df, tab_topic_vis = st.tabs( 'Dataframe', 'Topics Visualisation' )
-with tab_df:
-    st.write(data2)
-
 
 # Fine-tune your topic representations
 representation_model = KeyBERTInspired()
@@ -145,6 +141,55 @@ docs = data2['sentence']
 topics, probs = topic_model.fit_transform(docs)
 freq = topic_model.get_topic_info()
 
+
+tab_df, tab_topic_vis, tab_topic_sum, tab_topic_speakers = st.tabs( ['Dataframe', 'Topics Summary', 'Topics Visualisation', 'Speakers'] )
+
+    
+with tab_df:
+    data2 = topic_model.get_document_info(docs)
+    data2 = data2.rename(columns = {'Document':'sentence'})
+    data2 = data2.merge(data2, on = 'sentence')
+    data2 = data2.drop_duplicates('sentence')
+    data2 = data2.rename(columns = {'index':'full_text_id'})
+    st.write(data2)
+
 with tab_topic_vis:
+    st.plotly_chart( topic_model.visualize_topics( width = 650, height = 400 ) )
+    add_spacelines(2)
+    st.plotly_chart( topic_model.visualize_documents(docs, width = 850, height = 700 ) )
+    add_spacelines(2)
+    st.plotly_chart( topic_model.visualize_barchart(n_words = 8, width = 650, height = 400 ) )
+    add_spacelines(2)
+
+with tab_topic_speakers:    
+    classes = data2[ 'speaker' ].tolist()
+    topics_per_class = topic_model.topics_per_class(docs, classes=classes)    
+    st.plotly_chart( topic_model.visualize_topics_per_class(topics_per_class, width = 750, height = 600 ) )
+    add_spacelines(2)
+
+    df_2 = data2.copy().drop_duplicates('full_text_id')
+    speaker_categories = list(df_2.speaker_category.unique())
+    chosen_categories_in_time = st.multiselect( "Choose speaker categories to display", speaker_categories, speaker_categories )
+    df_2 = df_2[ df_2.speaker_category.isin(chosen_categories_in_time) ]
+    df_2 = df_2.reset_index(drop=True)
+    df_2 = df_2.reset_index()    
+    df_2["turn"] = df_2['index'].astype('int')
+    df_2["velocity"] = 1
+
+    fig = px.bar(df_2, x="turn", y="velocity", hover_data = {"speaker":True, "velocity":False}, color = "speaker",
+                 labels={'velocity':'', 'speaker': 'Speaker'}, title = "Speakers distribution in time",
+                 width=1000, height=460, color_discrete_sequence=px.colors.qualitative.G10)
+    fig.update_layout(xaxis={"tickformat":"d"},
+                      font=dict(size=15,color='#000000'),
+                       yaxis = dict(tickmode = 'linear',tick0 = 0,dtick = 1
+        ))
+    
+    fig.update_yaxes(showticklabels=False)
+    st.plotly_chart(fig)
+
+    
+with tab_topic_sum:
     st.write(freq)
+    add_spacelines(2)
+    st.write(data2[ data2['Topic'] != -1 ]['Name'].value_counts(normalize=True).round(2)*100)
 # https://maartengr.github.io/BERTopic/getting_started/visualization/visualization.html#visualize-topics-over-time
