@@ -148,10 +148,10 @@ st.title('Topic detection in structured debates')
 data = uploaded_file.getvalue()
 #st.write(data)
 
-data=StringIO(uploaded_file.getvalue().decode('utf-8'))
-data=data.read()
+data_raw=StringIO(uploaded_file.getvalue().decode('utf-8'))
+data_raw=data_raw.read()
 
-data_list = data.split("\r\n\r\n")
+data_list = data_raw.split("\r\n\r\n")
 
 data = pd.DataFrame( {'text':data_list} )
 data['speaker'] = data.text.apply(lambda x: x.split(":")[0] )
@@ -187,8 +187,10 @@ topics_per_class = topic_model.topics_per_class(docs, classes=classes)
 freq = topic_model.get_topic_info()
 
 
-tab_topic_sum, tab_topic_vis, tab_topic_speakers, tab_df = st.tabs( ['Topics Summary', 'Topics Visualisation', 'Speakers', 'Dataframe' ] )
+tab_topic_sum, tab_topic_vis, tab_topic_speakers, tab_df, tab_deb = st.tabs( ['Topics Summary', 'Topics Visualisation', 'Speakers', 'Dataframe', 'Debate' ] )
 
+with tab_deb:
+    st.write(data_raw)
     
 with tab_df:
     data3 = topic_model.get_document_info(docs)
