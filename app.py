@@ -180,9 +180,9 @@ topic_model = BERTopic(representation_model=representation_model, min_topic_size
 
 docs = data2['sentence']
 classes = data2[ 'speaker' ].tolist()
-#topics, probs = topic_model.fit_transform(docs)
-#topics_per_class = topic_model.topics_per_class(docs, classes=classes)  
-topics, probs, topics_per_class, topic_model = DetectT(docs = docs, model = topic_model, classes = classes)
+topics, probs = topic_model.fit_transform(docs)
+topics_per_class = topic_model.topics_per_class(docs, classes=classes)  
+#topics, probs, topics_per_class, topic_model = DetectT(docs = docs, model = topic_model, classes = classes)
 #topics, probs, topics_per_class = DetectT(docs = docs, model = topic_model, classes = classes)
 freq = topic_model.get_topic_info()
 
