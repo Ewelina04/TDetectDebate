@@ -28,6 +28,15 @@ from io import StringIO
 from bertopic import BERTopic
 from bertopic.representation import KeyBERTInspired
 
+# Use a pipeline as a high-level helper
+from transformers import pipeline
+
+@st.cache
+def load_model_nli(model = "cross-encoder/nli-deberta-base"):
+    pipe = pipeline("zero-shot-classification", model=model)
+return pipe
+
+
 
 def add_spacelines(number_sp=2):
     for xx in range(number_sp):
@@ -170,6 +179,7 @@ data2 = data.copy()
 data2 = data2.explode('sentence')
 data2 = data2.reset_index()
 
+pipe_deberta = load_model_nli()
 
 # Fine-tune your topic representations
 from sklearn.feature_extraction.text import CountVectorizer
