@@ -31,7 +31,7 @@ from bertopic.representation import KeyBERTInspired
 # Use a pipeline as a high-level helper
 from transformers import pipeline
 
-@st.cache_resources
+@st.cache_resource
 def load_model_nli(model = "cross-encoder/nli-deberta-base"):
     pipe = pipeline("zero-shot-classification", model=model)
     return pipe
