@@ -31,7 +31,7 @@ from bertopic.representation import KeyBERTInspired
 # Use a pipeline as a high-level helper
 from transformers import pipeline
 
-@st.cache
+@st.cache_resources
 def load_model_nli(model = "cross-encoder/nli-deberta-base"):
     pipe = pipeline("zero-shot-classification", model=model)
     return pipe
@@ -63,30 +63,17 @@ def split_into_para(text):
       n0+=5
       n1+=5
 
-  elif nn % 4 == 0:
-    n0 = 0
-    n1 = 4
-
-    for _ in range( int(nn/4) ):
-      #print( exmpl[n0:n1] )
-      para_split = exmpl[n0:n1]
-      para_split = ". ".join(para_split)
-      splited.append( para_split )
-      n0+=4
-      n1+=4
-
   else:
     n0 = 0
-    n1 = 3
+    n1 = 6
 
-    for _ in range( int( np.ceil(nn/3)) ):
+    for _ in range( int( np.ceil(nn/6)) ):
       #print( exmpl[n0:n1] )
       para_split = exmpl[n0:n1]
       para_split = ". ".join(para_split)
       splited.append( para_split )
-      n0+=3
-      n1+=3
-
+      n0+=6
+      n1+=6
   return splited
 
 
