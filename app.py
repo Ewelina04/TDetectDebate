@@ -34,7 +34,7 @@ from transformers import pipeline
 @st.cache
 def load_model_nli(model = "cross-encoder/nli-deberta-base"):
     pipe = pipeline("zero-shot-classification", model=model)
-return pipe
+    return pipe
 
 
 
