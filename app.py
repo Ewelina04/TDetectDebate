@@ -123,14 +123,14 @@ with st.sidebar:
     #st.write('Upload your debate in a **.txt** format')
     st.write( '**Parameters of topic detector**' ) 
     max_doc_freq = st.slider("Max doc frequency", 0.0, 1.0, 0.7)
-    min_doc_freq = st.slider("Min doc frequency", 0, 30, 3)
-    min_tsize = st.slider("Min topic size", 0, 50, 11)
+    min_doc_freq = st.slider("Min doc frequency", 0, 30, 1)
+    min_tsize = st.slider("Min topic size", 0, 50, 10)
     zero_shot_check = st.checkbox('Zero-shot topic detection')
     if zero_shot_check:
-        zero_shot_check_list = st.text_area("Insert topic names, separated by a comma", value = 'war, abortion, imigration, taxes')
+        zero_shot_check_list = st.text_area("Insert topic names, separated by a comma", value = 'war, abortion, immigration, tax economy, health care')
         zero_shot_check_list = zero_shot_check_list.split(", ")
 
-        zeroshot_min_sim = st.slider("The minimum similarity between a zero-shot topic and a document for assignment", 0.0, 1.0, 0.4)
+        zeroshot_min_sim = st.slider("The minimum similarity between a zero-shot topic and a document for assignment", 0.0, 1.0, 0.35)
     else:
         zero_shot_check_list = None
         zeroshot_min_sim = 0.7
@@ -166,11 +166,16 @@ data2 = data.copy()
 data2 = data2.explode('sentence')
 data2 = data2.reset_index()
 
-pipe_deberta = load_model_nli()
+tab_topic_sum, tab_topic_vis, tab_topic_speakers, tab_df, tab_deb = st.tabs( ['Topics Summary', 'Topics Visualisation', 'Speakers', 'Dataframe', 'Debate' ] )
+
+with tab_deb:
+    st.write(data_raw)
+
+#pipe_deberta = load_model_nli()
 
 # Fine-tune your topic representations
 from sklearn.feature_extraction.text import CountVectorizer
-vectorizer_model = CountVectorizer(ngram_range=(1, 1), stop_words="english", max_df = max_doc_freq, min_df = min_doc_freq)
+vectorizer_model = CountVectorizer(ngram_range=(1, 1), stop_words="english", max_df = max_doc_freq, min_df = int(min_doc_freq) )
 representation_model = KeyBERTInspired()
 topic_model = BERTopic(representation_model=representation_model, min_topic_size = min_tsize, 
                        vectorizer_model=vectorizer_model, zeroshot_topic_list = zero_shot_check_list, zeroshot_min_similarity = zeroshot_min_sim)
@@ -184,10 +189,7 @@ topics_per_class = topic_model.topics_per_class(docs, classes=classes)
 freq = topic_model.get_topic_info()
 
 
-tab_topic_sum, tab_topic_vis, tab_topic_speakers, tab_df, tab_deb = st.tabs( ['Topics Summary', 'Topics Visualisation', 'Speakers', 'Dataframe', 'Debate' ] )
 
-with tab_deb:
-    st.write(data_raw)
     
 with tab_df:
     data3 = topic_model.get_document_info(docs)
