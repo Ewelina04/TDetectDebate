@@ -122,8 +122,8 @@ with st.sidebar:
     add_spacelines(2)
     #st.write('Upload your debate in a **.txt** format')
     st.write( '**Parameters of topic detector**' ) 
-    max_doc_freq = st.slider("Max doc frequency", 0.0, 1.0, 0.7)
-    min_doc_freq = st.slider("Min doc frequency", 0, 30, 1)
+    max_doc_freq = st.slider("Max doc frequency", 0.0, 1.0, 0.85)
+    min_doc_freq = st.slider("Min doc frequency", 0, 30, 2)
     min_tsize = st.slider("Min topic size", 0, 50, 10)
     zero_shot_check = st.checkbox('Zero-shot topic detection')
     if zero_shot_check:
